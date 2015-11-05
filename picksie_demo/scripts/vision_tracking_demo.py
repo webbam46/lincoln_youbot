@@ -10,17 +10,29 @@ def Init():
     #Initialise the tracker object
     tracker = Tracker()
     #Move to the robot to its default position, to start tracking
-    Default(youbot)
+    #Default(youbot)
+
+
+    while True:
+        youbot.DriveTo(tracker.GetPosX(),
+                       tracker.GetPosY(),
+                       tracker.GetPosZ(),
+                       tracker.GetOrX(),
+                       tracker.GetOrY(),
+                       tracker.GetOrZ(),
+                       tracker.GetOrW())
+            
+        
     
     #Keep looping
-    while True:
-	#Check if tracker has data
-	while tracker.HasData():
-		#Youbot target will be updated here
-		# 
-		#
-		print "update youbot target"
-		tracker.Display()
+    #while True:
+#	#Check if tracker has data
+#	while tracker.HasData():
+#		#Youbot target will be updated here
+#		# 
+#		#
+#		print "update youbot target"
+#		tracker.Display()
 		
 		
 

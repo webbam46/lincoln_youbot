@@ -14,7 +14,13 @@ tmux select-window -t $SESSION:0
 tmux send-keys "roslaunch picksie_simulation picksie_sim.launch" 
 
 tmux select-window -t $SESSION:1
+tmux split-window -v
+tmux select-pane -t 0
 tmux send-keys "roslaunch youbot_moveit move_group.launch"
+tmux select-pane -t 1
+tmux send-keys "roslaunch youbot_navigation_local move_base_local.launch"
+
+
 
 tmux select-window -t $SESSION:2
 tmux split-window -v
@@ -23,6 +29,8 @@ tmux send-keys "rosrun moveit_commander moveit_commander_cmdline.py"
 
 tmux select-pane -t 1
 tmux send-keys "rosrun teleop_twist_keyboard teleop_twist_keyboard.py"
+
+
 
 
 tmux select-window -t $SESSION:3

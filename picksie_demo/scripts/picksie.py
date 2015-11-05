@@ -5,6 +5,9 @@ import rospy
 import moveit_commander
 import moveit_msgs.msg
 import geometry_msgs.msg
+from geometry_msgs import *
+import move_base_msgs.msg
+import move_base
 from std_msgs.msg import String
 
 
@@ -40,6 +43,24 @@ class Tracker:
 		return self.data.poses[0].position
 	else:
 		return 0
+    #Get tracker position x
+    def GetPosX(self):
+        if self.HasData():
+                return self.data.poses[0].position.x
+        else:
+                return 0
+    #Get tracker position x
+    def GetPosY(self):
+        if self.HasData():
+                return self.data.poses[0].position.y
+        else:
+                return 0
+    #Get tracker position x
+    def GetPosZ(self):
+        if self.HasData():
+                return self.data.poses[0].position.z
+        else:
+                return 0
 	
     #Get tracker orientation (x,y,z,w)
     def GetOrientation(self):
@@ -47,6 +68,30 @@ class Tracker:
 		return self.data.poses[0].orientation
 	else:
 		return 0
+    #Get tracker orientation x
+    def GetOrX(self):
+        if self.HasData():
+                return self.data.poses[0].orientation.x
+        else:
+                return 0
+    #Get tracker orientation y
+    def GetOrY(self):
+        if self.HasData():
+                return self.data.poses[0].orientation.y
+        else:
+                return 0
+    #Get tracker orientation z
+    def GetOrZ(self):
+        if self.HasData():
+                return self.data.poses[0].orientation.z
+        else:
+                return 0
+    #Get tracker orientation w
+    def GetOrW(self):
+        if self.HasData():
+                return self.data.poses[0].orientation.w
+        else:
+                return 0
 
     #print tracker position
     def PrintPosition(self):
@@ -83,6 +128,10 @@ class Youbot:
         self.group = moveit_commander.MoveGroupCommander("arm_1")
         #Initialise RVIZ
         self.display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',moveit_msgs.msg.DisplayTrajectory)
+        #move base cmd_vel publisher
+        self.move_base_cmdvel_publisher = rospy.Publisher("/move_base/cmd_vel",geometry_msgs.msg.Twist)
+        #move base goal publisher
+        self.move_base_goal_publisher = rospy.Publisher("/move_base/goal",move_base_msgs.msg.MoveBaseActionGoal)
         #youbot has now been initialised
         print "Initialisation finished."
         #Finally - print the initial robot state
@@ -128,6 +177,43 @@ class Youbot:
         rospy.sleep(5)
         #now move to the target
         self.Move()
+    #Use for driving the robot
+    def Drive(self,lx,ly,lz,ax,ay,az):
+        #Create a twist message, and fill in the details
+        twist = geometry_msgs.msg.Twist()
+        twist.linear.x = lx
+        twist.linear.y = ly
+        twist.linear.z = lz
+        twist.angular.x = ax
+        twist.angular.y = ay
+        twist.angular.z = az
+        #log event
+        rospy.loginfo("Driving youbot")
+        #now publish
+        #self.move_base_cmdvel_publisher.publish(twist)
+        for i in range(30):
+           self.move_base_cmdvel_publisher.publish(twist)
+           rospy.sleep(0.1) # 30*0.1 = 3.0
+    #Used to drive the robot to a goal position/orientation
+    def DriveTo(self,px,py,pz,ox,oy,oz,ow):
+        #Create the required ROSMSG - in this case, it is move_base_msgs/MoveBaseActionGoal
+        target = move_base_msgs.msg.MoveBaseActionGoal()
+        target.goal.target_pose.header.frame_id = 'odom'
+        target.goal.target_pose.pose.position.x = px #Goal position x
+        target.goal.target_pose.pose.position.y = py #Goal position y
+        target.goal.target_pose.pose.position.z = pz #Goal position z
+        target.goal.target_pose.pose.orientation.x = ox #Goal orientation x
+        target.goal.target_pose.pose.orientation.y = oy #Goal orientation y
+        target.goal.target_pose.pose.orientation.z = oz #Goal orientation z
+        target.goal.target_pose.pose.orientation.w = ow #Goal orientation w
+        #Log the event
+        rospy.loginfo("Driving youbot to goal")
+        #now publish
+        for i in range(30):
+           self.move_base_goal_publisher.publish(target)
+           rospy.sleep(0.1) # 30*0.1 = 3.0
+        
+        
 	
 
     #Print robot state
